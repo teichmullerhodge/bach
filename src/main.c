@@ -63,7 +63,8 @@ static void on_activate(GtkApplication *app) {
   appState->window = window;
   appState->sidebarGrid = sidebarGrid;
   appState->musicsCards = musics;
-
+  appState->selectedPath = NULL;
+  appState->song = NULL;
   g_signal_connect(newSong, "clicked", G_CALLBACK(on_new_song_clicked),
                    appState);
 
@@ -151,12 +152,15 @@ static void on_activate(GtkApplication *app) {
     return;
   }
 
-  song->path = "./resources/song/beautiful.mp3";
+  song->path = "./resources/song/beautiful.mp3"; // default song
   song->stream = NULL;
   song->playButton = playMusic;
   song->state = SONG_STATE_IDLE;
 
-  g_signal_connect(playMusic, "clicked", G_CALLBACK(song_state), song);
+  appState->song = song;
+
+  g_signal_connect(playMusic, "clicked", G_CALLBACK(song_state),
+                   appState->song);
 
   // g_signal_connect(ctrl, "enter", G_CALLBACK(on_card_entered), container);
 

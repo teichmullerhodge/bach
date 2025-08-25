@@ -6,6 +6,8 @@ void song_state(GtkButton *btn, gpointer udata) {
 
   Song *song = (Song *)udata;
 
+  printf("Current song state: %d\n", song->state);
+  printf("Song path: %s\n", song->path);
   switch (song->state) {
   case SONG_STATE_IDLE: {
 

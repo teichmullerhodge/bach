@@ -1,6 +1,7 @@
 #include "song_browser_state.h"
 #include "../widgets/widget_music_card.h"
 #include "appstate.h"
+#include "gtk/gtk.h"
 
 void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
 
@@ -16,12 +17,23 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
     if (mref) {
 
       box_push(state->musicsCards, mref);
-      GtkWidget *song = music_card(
-          "./resources/GTK.png", mref->title, mref->artist,
-          &(WidgetPositioning){TRUE, TRUE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+
+      GtkWidget *song =
+          music_card("./resources/GTK.png", mref->title, mref->artist,
+                     &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_START,
+                                          GTK_ALIGN_CENTER});
       gtk_widget_set_size_request(song, 245, -1);
       gtk_grid_attach(GTK_GRID(state->sidebarGrid), song, 0, state->rowCount, 1,
                       1);
+      gtk_widget_set_name(
+          song,
+          mref->path); // set the path as the name, will be used later for ref.
+
+      GtkGesture *click = gtk_gesture_click_new();
+      gtk_widget_add_controller(song, GTK_EVENT_CONTROLLER(click));
+
+      g_signal_connect(click, "pressed", G_CALLBACK(select_song), state);
+      state->rowCount += 1;
 
       g_print("File found: %s\n", mref->path);
       g_print("Title: %s\n", mref->title);

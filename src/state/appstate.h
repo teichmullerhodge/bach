@@ -2,12 +2,15 @@
 #define APPSTATE_H
 
 #include "../helpers/vecbox.h"
+#include "../songplayer/songplayer.h"
 #include <gtk/gtk.h>
 struct _AppState {
   GtkWidget *window;
   GtkWidget *sidebarGrid;
   size_t rowCount;
   VecBox *musicsCards;
+  const char *selectedPath;
+  Song *song;
 };
 
 typedef struct _AppState AppState;

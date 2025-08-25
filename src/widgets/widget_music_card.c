@@ -6,6 +6,8 @@
 #include "widget_image.h"
 #include "widget_label.h"
 
+#include "../state/appstate.h"
+
 GtkWidget *music_card(const char *imagepath, const char *songTitle,
                       const char *author, WidgetPositioning *pos) {
 
@@ -32,4 +34,21 @@ GtkWidget *music_card(const char *imagepath, const char *songTitle,
   set_configs(container, "music-card", pos);
 
   return container;
+}
+
+void select_song(GtkGestureClick *gesture, int npress, double x, double y,
+                 gpointer udata) {
+  (void)gesture;
+  (void)npress;
+  (void)x;
+  (void)y;
+  GtkWidget *song =
+      gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
+
+  AppState *state = (AppState *)udata;
+
+  const char *path = gtk_widget_get_name(GTK_WIDGET(song));
+  state->song->path = path;
+  state->selectedPath = path; // to be accessible easier in the app state.
+  g_print("Selected song path: %s\n", state->song->path);
 }
