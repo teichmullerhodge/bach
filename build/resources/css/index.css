@@ -1,0 +1,126 @@
+
+*{
+    color: #797979;
+}
+
+
+.root-grid {
+    background-color: #ffffff;
+}
+
+.sidebar-grid {
+    background-color: #f8f8f8;
+}
+
+.main-grid {
+    background-color: #ffffff;
+    }
+
+
+
+#MusicSearch {
+    margin: 10px;
+    border-radius: 5px;
+    background-color: #eaeaec;
+    border: none;
+    color: #797979;
+}
+
+.sidebar-title {
+    font-size: 18px;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #333;
+}
+.not-found-label {
+    font-size: 15px;
+
+}
+
+.new-song-button {
+    margin: 10px;
+    border-radius: 5px;
+    background: none;
+    background-color: #eaeaea;
+    border: none;
+    color: #797979;
+}
+
+.new-song-button:hover {
+    opacity: 0.8;
+    transition: background-color 0.3s ease;
+
+}
+
+.music-card-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.music-card-author {
+    font-size: 12px;
+    color: #8b8c8e;
+}
+
+.music-card {
+    padding: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 5px;
+    background: none;
+    color: #797979;
+    margin-top: 10px;
+}
+
+.music-card:hover {
+    background-color: #eaeaea;
+    transition: background-color 0.3s ease;
+
+}
+
+
+.music-image {
+    border-radius: 8px;
+    margin-top: 25px;
+    padding: 20px;
+    background: none;
+
+}
+
+
+.song-title {
+    font-size: 24px;
+    font-weight: bold;
+      margin-top: 0;
+    margin-bottom: 0;
+    color: #333;
+
+}
+
+.song-artist {
+    font-size: 18px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.controls-container {
+    margin-top: 15px;
+    
+}
+
+
+.media-control-button {
+    background: none;
+    background-color: whitesmoke;
+    border: none;
+    color: #797979;
+    font-size: 24px;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.media-control-button:hover {
+    background-color: #eaeaec;
+    transition: background-color 0.3s ease;
+}
+
