@@ -3,6 +3,31 @@
     color: #797979;
 }
 
+window {
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+headerbar {
+    background: none;
+    background-color: #fff;
+    border: none;
+}
+
+headerbar .title {
+    font-weight: bold;
+}
+
+headerbar button {
+    background:none;
+    transition: 0.0s;
+    background-color: #eaeaec;
+}
+
+headerbar button:hover {
+    opacity: 0.6;
+}
+
 
 .root-grid {
     background-color: #ffffff;

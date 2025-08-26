@@ -28,6 +28,7 @@ static void on_activate(GtkApplication *app) {
   g_object_unref(provider);
 
   GtkWidget *window = gtk_application_window_new(app);
+
   gtk_window_set_title(GTK_WINDOW(window), APP_CONFIG_WIN_TITLE);
   gtk_window_set_default_size(GTK_WINDOW(window), APP_CONFIG_WIN_WIDTH,
                               APP_CONFIG_WIN_HEIGHT);
@@ -65,6 +66,9 @@ static void on_activate(GtkApplication *app) {
   appState->musicsCards = musics;
   appState->selectedPath = NULL;
   appState->song = NULL;
+  appState->songTitle = NULL;
+  appState->songArtist = NULL;
+
   g_signal_connect(newSong, "clicked", G_CALLBACK(on_new_song_clicked),
                    appState);
 
@@ -102,15 +106,6 @@ static void on_activate(GtkApplication *app) {
 
   gtk_grid_attach(GTK_GRID(sidebarGrid), nothingFound, 0, 0, 1, 1);
 
-  // for (int i = 0; i < 30; i++) {
-  //   GtkWidget *card = music_card(
-  //       "./resources/GTK.png", "GTK Song", "Teichmuller",
-  //       &(WidgetPositioning){TRUE, TRUE, GTK_ALIGN_CENTER,
-  //       GTK_ALIGN_CENTER});
-  //   gtk_widget_set_size_request(card, 245, -1);
-  //   gtk_grid_attach(GTK_GRID(sidebarGrid), card, 0, i + 1, 1, 1);
-  // }
-
   gtk_box_append(GTK_BOX(sidebarBox), scroll);
 
   // main area
@@ -134,6 +129,9 @@ static void on_activate(GtkApplication *app) {
       &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START}
 
   );
+
+  appState->songTitle = songTitle;
+  appState->songArtist = songArtist;
 
   GtkWidget *backMusic = gtk_button_new_from_icon_name("media-skip-backward");
   gtk_widget_add_css_class(backMusic, "media-control-button");

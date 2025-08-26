@@ -7,6 +7,9 @@
 struct _AppState {
   GtkWidget *window;
   GtkWidget *sidebarGrid;
+  GtkWidget *songTitle;
+  GtkWidget *songArtist;
+
   size_t rowCount;
   VecBox *musicsCards;
   const char *selectedPath;

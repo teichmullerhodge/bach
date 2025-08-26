@@ -1,4 +1,5 @@
 #include "song_browser_state.h"
+#include "../helpers/charmpl.h"
 #include "../widgets/widget_music_card.h"
 #include "appstate.h"
 #include "gtk/gtk.h"
@@ -20,9 +21,9 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
 
       GtkWidget *song =
           music_card("./resources/GTK.png", mref->title, mref->artist,
-                     &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_START,
-                                          GTK_ALIGN_CENTER});
-      gtk_widget_set_size_request(song, 245, -1);
+                     &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER,
+                                          GTK_ALIGN_START});
+      gtk_widget_set_size_request(song, 60, -1);
       gtk_grid_attach(GTK_GRID(state->sidebarGrid), song, 0, state->rowCount, 1,
                       1);
       gtk_widget_set_name(
@@ -40,6 +41,9 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
       g_print("Artist: %s\n", mref->artist);
       g_print("Year: %u\n", mref->year);
       g_print("Duration: %lu seconds\n", mref->seconds);
+
+      gtk_label_set_text(GTK_LABEL(state->songTitle), mref->title);
+      gtk_label_set_text(GTK_LABEL(state->songArtist), mref->artist);
     }
     g_free(path);
     g_object_unref(file);
