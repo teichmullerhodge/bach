@@ -52,7 +52,7 @@ static void on_activate(GtkApplication *app) {
       "Browse songs", "audio-card-symbolic", "new-song-button",
       &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START});
 
-  GtkWidget *sidebarGrid = gtk_grid_new();
+  GtkWidget *sidebar = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   VecBox *musics = box_new();
   if (musics == NULL)
     return;
@@ -60,14 +60,14 @@ static void on_activate(GtkApplication *app) {
   AppState *appState = malloc(sizeof(AppState));
   if (appState == NULL)
     return;
-  appState->rowCount = 1; // starts at 1 because of the not found widget
   appState->window = window;
-  appState->sidebarGrid = sidebarGrid;
+  appState->sidebar = sidebar;
   appState->musicsCards = musics;
   appState->selectedPath = NULL;
   appState->song = NULL;
   appState->songTitle = NULL;
   appState->songArtist = NULL;
+  appState->lastSelectedCard = NULL;
 
   g_signal_connect(newSong, "clicked", G_CALLBACK(on_new_song_clicked),
                    appState);
@@ -79,9 +79,9 @@ static void on_activate(GtkApplication *app) {
   gtk_box_append(GTK_BOX(sidebarBox), newSong);
 
   GtkWidget *scroll = gtk_scrolled_window_new();
-  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll), sidebarGrid);
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll), sidebar);
 
-  gtk_widget_add_css_class(root, "sidebar-grid");
+  gtk_widget_add_css_class(root, "root-application");
 
   gtk_widget_set_vexpand(scroll, FALSE);
   gtk_widget_set_hexpand(scroll, FALSE);
@@ -101,12 +101,10 @@ static void on_activate(GtkApplication *app) {
   gtk_widget_set_name(nothingFound, "NotFound");
   gtk_widget_set_visible(nothingFound, FALSE);
 
-  g_signal_connect(entry, "changed", G_CALLBACK(on_search_changed),
-                   sidebarGrid);
-
-  gtk_grid_attach(GTK_GRID(sidebarGrid), nothingFound, 0, 0, 1, 1);
+  g_signal_connect(entry, "changed", G_CALLBACK(on_search_changed), sidebar);
 
   gtk_box_append(GTK_BOX(sidebarBox), scroll);
+  gtk_box_append(GTK_BOX(sidebar), nothingFound);
 
   // main area
 
@@ -118,20 +116,39 @@ static void on_activate(GtkApplication *app) {
   gtk_grid_set_row_homogeneous(GTK_GRID(mainArea), FALSE);
 
   GtkWidget *musicImage = widget_image(
-      "./resources/GTK.png", 100, "music-image",
+      "./resources/start-layout.png", 375, "music-image",
       &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START});
 
+  GtkWidget *songSlider =
+      gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0f, 20.0f, 1.0f);
+  gtk_widget_set_size_request(songSlider, 500, -1);
+
+  gtk_widget_set_hexpand(songSlider, FALSE);
+  gtk_widget_set_vexpand(songSlider, FALSE);
+  gtk_widget_set_halign(songSlider, GTK_ALIGN_CENTER);
+  gtk_widget_set_valign(songSlider, GTK_ALIGN_CENTER);
+
+  g_signal_connect(songSlider, "value-changed", G_CALLBACK(on_slider_change),
+                   appState);
+
+  gtk_widget_add_css_class(songSlider, "music-scale");
+
   GtkWidget *songTitle = widget_label(
-      "Song Title", "song-title",
+      "", "song-title",
       &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START});
   GtkWidget *songArtist = widget_label(
-      "Song Artist", "song-artist",
+      "No song selected", "song-artist",
       &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START}
 
   );
 
   appState->songTitle = songTitle;
   appState->songArtist = songArtist;
+
+  GtkWidget *favoriteMusic =
+      gtk_button_new_from_icon_name("non-starred-symbolic");
+  gtk_widget_add_css_class(favoriteMusic, "media-control-button-minor");
+  gtk_widget_set_name(favoriteMusic, "favoriteButton");
 
   GtkWidget *backMusic = gtk_button_new_from_icon_name("media-skip-backward");
   gtk_widget_add_css_class(backMusic, "media-control-button");
@@ -143,6 +160,11 @@ static void on_activate(GtkApplication *app) {
   GtkWidget *forwardMusic = gtk_button_new_from_icon_name("media-skip-forward");
   gtk_widget_add_css_class(forwardMusic, "media-control-button");
   gtk_widget_set_name(forwardMusic, "forwardButton");
+
+  GtkWidget *shuffleMusic =
+      gtk_button_new_from_icon_name("media-playlist-shuffle-symbolic");
+  gtk_widget_add_css_class(shuffleMusic, "media-control-button-minor");
+  gtk_widget_set_name(shuffleMusic, "shuffleButton");
 
   Song *song = malloc(sizeof(Song));
   if (song == NULL) {
@@ -163,18 +185,25 @@ static void on_activate(GtkApplication *app) {
   // g_signal_connect(ctrl, "enter", G_CALLBACK(on_card_entered), container);
 
   GtkWidget *controlsContainer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+
   gtk_widget_add_css_class(controlsContainer, "controls-container");
   gtk_widget_set_halign(controlsContainer, GTK_ALIGN_CENTER);
+
+  gtk_box_append(GTK_BOX(controlsContainer), favoriteMusic);
 
   gtk_box_append(GTK_BOX(controlsContainer), backMusic);
   gtk_box_append(GTK_BOX(controlsContainer), playMusic);
   gtk_box_append(GTK_BOX(controlsContainer), forwardMusic);
 
-  gtk_grid_attach(GTK_GRID(mainArea), musicImage, 0, 0, 1, 1);
-  gtk_grid_attach(GTK_GRID(mainArea), songTitle, 0, 1, 1, 1);
-  gtk_grid_attach(GTK_GRID(mainArea), songArtist, 0, 2, 1, 1);
+  gtk_box_append(GTK_BOX(controlsContainer), shuffleMusic);
 
-  gtk_grid_attach(GTK_GRID(mainArea), controlsContainer, 0, 3, 1, 1);
+  gtk_grid_attach(GTK_GRID(mainArea), musicImage, 0, 0, 1, 1);
+  gtk_grid_attach(GTK_GRID(mainArea), songSlider, 0, 1, 1, 1);
+
+  gtk_grid_attach(GTK_GRID(mainArea), songTitle, 0, 2, 1, 1);
+  gtk_grid_attach(GTK_GRID(mainArea), songArtist, 0, 3, 1, 1);
+
+  gtk_grid_attach(GTK_GRID(mainArea), controlsContainer, 0, 4, 1, 1);
 
   gtk_grid_attach(GTK_GRID(root), sidebarBox, 0, 0, 1, 1);
   gtk_grid_attach(GTK_GRID(root), mainArea, 1, 0, 1, 1);

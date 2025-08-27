@@ -33,7 +33,7 @@ headerbar button:hover {
     background-color: #ffffff;
 }
 
-.sidebar-grid {
+.root-application {
     background-color: #f8f8f8;
 }
 
@@ -93,8 +93,16 @@ headerbar button:hover {
     margin-right: 5px;
     border-radius: 5px;
     background: none;
+    transition: 0.2s ease;
+    border: 1px solid whitesmoke;
     color: #797979;
     margin-top: 10px;
+}
+
+.music-selected {
+    background: none;
+    background-color: #eaeaea;
+    border: 1px solid whitesmoke;
 }
 
 .music-card:hover {
@@ -134,10 +142,28 @@ headerbar button:hover {
 }
 
 
+.media-control-button-minor {
+    background: none;
+    border: none;
+    color: #797979;
+    font-size: 24px;
+    padding: 10px;
+    border-radius: 50%;
+    transition: 0.2s ease;
+    border: 2px solid white;
+}
+
+#favoriteButton:hover {
+    border: 2px solid rgb(145, 182, 231);
+}
+
+#shuffleButton:hover {
+    border: 2px solid rgb(145, 182, 231);
+}
+
 .media-control-button {
     background: none;
-    background-color: whitesmoke;
-    border: none;
+    border: 2px solid white;
     color: #797979;
     font-size: 24px;
     padding: 10px;
@@ -145,7 +171,6 @@ headerbar button:hover {
 }
 
 .media-control-button:hover {
-    background-color: #eaeaec;
+    border: 2px solid rgb(145, 182, 231);
     transition: background-color 0.3s ease;
 }
-

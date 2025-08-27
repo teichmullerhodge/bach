@@ -6,14 +6,14 @@
 #include <gtk/gtk.h>
 struct _AppState {
   GtkWidget *window;
-  GtkWidget *sidebarGrid;
+  GtkWidget *sidebar;
   GtkWidget *songTitle;
   GtkWidget *songArtist;
 
-  size_t rowCount;
   VecBox *musicsCards;
   const char *selectedPath;
   Song *song;
+  GtkWidget *lastSelectedCard; // keeps the reference of the lastSelectedCard.
 };
 
 typedef struct _AppState AppState;

@@ -1,5 +1,5 @@
 #include "song_browser_state.h"
-#include "../helpers/charmpl.h"
+#include "../helpers/text_encoding.h"
 #include "../widgets/widget_music_card.h"
 #include "appstate.h"
 #include "gtk/gtk.h"
@@ -24,8 +24,7 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
                      &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER,
                                           GTK_ALIGN_START});
       gtk_widget_set_size_request(song, 60, -1);
-      gtk_grid_attach(GTK_GRID(state->sidebarGrid), song, 0, state->rowCount, 1,
-                      1);
+      gtk_box_append(GTK_BOX(state->sidebar), song);
       gtk_widget_set_name(
           song,
           mref->path); // set the path as the name, will be used later for ref.
@@ -34,7 +33,6 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
       gtk_widget_add_controller(song, GTK_EVENT_CONTROLLER(click));
 
       g_signal_connect(click, "pressed", G_CALLBACK(select_song), state);
-      state->rowCount += 1;
 
       g_print("File found: %s\n", mref->path);
       g_print("Title: %s\n", mref->title);
