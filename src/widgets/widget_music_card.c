@@ -9,7 +9,8 @@
 #include "widget_label.h"
 
 GtkWidget *music_card(const char *imagepath, const char *songTitle,
-                      const char *author, WidgetPositioning *pos) {
+                      const char *author, u64 duration,
+                      WidgetPositioning *pos) {
 
   GtkEventController *ctrl = gtk_event_controller_motion_new();
 
@@ -32,6 +33,10 @@ GtkWidget *music_card(const char *imagepath, const char *songTitle,
   g_object_set_data(G_OBJECT(container), "song-title", (char *)songTitle);
   g_object_set_data(G_OBJECT(container), "song-artist", (char *)author);
 
+  double *seconds = g_new(double, 1);
+  *seconds = duration;
+  g_object_set_data_full(G_OBJECT(container), "song-seconds", seconds, g_free);
+
   gtk_widget_add_controller(container, ctrl);
 
   set_configs(container, "music-card", pos);
@@ -45,6 +50,8 @@ void select_song(GtkGestureClick *gesture, int npress, double x, double y,
   (void)npress;
   (void)x;
   (void)y;
+
+  printf("Select song event\n");
 
   GtkWidget *card =
       gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
@@ -61,12 +68,28 @@ void select_song(GtkGestureClick *gesture, int npress, double x, double y,
     state->lastSelectedCard = card;
   }
 
-  // char *songTitle = g_object_get_data(G_OBJECT(card), "song-title");
-  // char *artist = g_object_get_data(G_OBJECT(card), "song-artist");
+  char *songTitle = g_object_get_data(G_OBJECT(card), "song-title");
+  char *artist = g_object_get_data(G_OBJECT(card), "song-artist");
+  double *duration = g_object_get_data(G_OBJECT(card), "song-seconds");
 
   state->selectedPath = path;
   if (state->song)
     state->song->path = path;
+
+  f32 seconds = *duration;
+  state->song->artist = songTitle;
+  state->song->title = artist;
+
+  char maxText[9];
+  char minLabel[] = "0:00";
+  snprintf(maxText, 9, "%f", (double)seconds);
+  gtk_label_set_label(GTK_LABEL(state->maxLabel), maxText);
+  gtk_label_set_label(GTK_LABEL(state->minLabel), minLabel);
+  gtk_range_set_range(GTK_RANGE(state->songSlider), 0.0f, (f32)seconds);
+
+  gtk_range_set_value(GTK_RANGE(state->songSlider), 0.0f);
+
+  printf("Min: %f - Max: %f\n", 0.0f, (f32)seconds);
 
   // gtk_label_set_text(GTK_LABEL(state->songTitle),
   //                    songTitle != NULL ? songTitle : "Unknown title");

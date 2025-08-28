@@ -10,6 +10,7 @@
 #include "state/song_state.h"
 #include "state/touchable_state.h"
 #include "widgets/widget_label.h"
+#include "widgets/widget_song_slider.h"
 #include "widgets/widget_touchable.h"
 #include "widgets/widgets.h"
 #include "widgets/widgets_config.h"
@@ -68,6 +69,9 @@ static void on_activate(GtkApplication *app) {
   appState->songTitle = NULL;
   appState->songArtist = NULL;
   appState->lastSelectedCard = NULL;
+  appState->songSlider = NULL;
+  appState->minLabel = NULL;
+  appState->maxLabel = NULL;
 
   g_signal_connect(newSong, "clicked", G_CALLBACK(on_new_song_clicked),
                    appState);
@@ -119,14 +123,27 @@ static void on_activate(GtkApplication *app) {
       "./resources/start-layout.png", 375, "music-image",
       &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START});
 
-  GtkWidget *songSlider =
-      gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0f, 20.0f, 1.0f);
-  gtk_widget_set_size_request(songSlider, 500, -1);
+  /// returns a GtkWidget* box, the song slider is the first child.
+  GtkWidget *sliderContainer = widget_song_slider(
+      0.0f, 20.0f, STEP_MUSIC_DEFAULT, "music-slider",
+      &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
 
-  gtk_widget_set_hexpand(songSlider, FALSE);
-  gtk_widget_set_vexpand(songSlider, FALSE);
-  gtk_widget_set_halign(songSlider, GTK_ALIGN_CENTER);
-  gtk_widget_set_valign(songSlider, GTK_ALIGN_CENTER);
+  GtkWidget *songSlider = gtk_widget_get_first_child(sliderContainer);
+  GtkWidget *labelsRow = gtk_widget_get_last_child(sliderContainer);
+  GtkWidget *minLabel = gtk_widget_get_first_child(labelsRow);
+  GtkWidget *maxLabel = gtk_widget_get_last_child(labelsRow);
+
+  appState->songSlider = songSlider;
+  appState->minLabel = minLabel;
+  appState->maxLabel = maxLabel;
+
+  gtk_widget_set_size_request(sliderContainer, 500, -1);
+  // gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0f, 20.0f, 1.0f);
+
+  // gtk_widget_set_hexpand(songSlider, FALSE);
+  // gtk_widget_set_vexpand(songSlider, FALSE);
+  // gtk_widget_set_halign(songSlider, GTK_ALIGN_CENTER);
+  // gtk_widget_set_valign(songSlider, GTK_ALIGN_CENTER);
 
   g_signal_connect(songSlider, "value-changed", G_CALLBACK(on_slider_change),
                    appState);
@@ -174,13 +191,16 @@ static void on_activate(GtkApplication *app) {
 
   song->path = "./resources/song/beautiful.mp3"; // default song
   song->stream = NULL;
+  song->seconds = 0;
+  song->artist = NULL;
+  song->title = NULL;
   song->playButton = playMusic;
   song->state = SONG_STATE_IDLE;
+  song->playingPath = NULL;
 
   appState->song = song;
 
-  g_signal_connect(playMusic, "clicked", G_CALLBACK(song_state),
-                   appState->song);
+  g_signal_connect(playMusic, "clicked", G_CALLBACK(song_state), appState);
 
   // g_signal_connect(ctrl, "enter", G_CALLBACK(on_card_entered), container);
 
@@ -198,7 +218,7 @@ static void on_activate(GtkApplication *app) {
   gtk_box_append(GTK_BOX(controlsContainer), shuffleMusic);
 
   gtk_grid_attach(GTK_GRID(mainArea), musicImage, 0, 0, 1, 1);
-  gtk_grid_attach(GTK_GRID(mainArea), songSlider, 0, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(mainArea), sliderContainer, 0, 1, 1, 1);
 
   gtk_grid_attach(GTK_GRID(mainArea), songTitle, 0, 2, 1, 1);
   gtk_grid_attach(GTK_GRID(mainArea), songArtist, 0, 3, 1, 1);

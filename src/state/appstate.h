@@ -9,6 +9,9 @@ struct _AppState {
   GtkWidget *sidebar;
   GtkWidget *songTitle;
   GtkWidget *songArtist;
+  GtkWidget *songSlider;
+  GtkWidget *minLabel;
+  GtkWidget *maxLabel;
 
   VecBox *musicsCards;
   const char *selectedPath;

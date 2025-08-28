@@ -3,6 +3,7 @@
 #include "../widgets/widget_music_card.h"
 #include "appstate.h"
 #include "gtk/gtk.h"
+#include <stdio.h>
 
 void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
 
@@ -19,10 +20,10 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
 
       box_push(state->musicsCards, mref);
 
-      GtkWidget *song =
-          music_card("./resources/GTK.png", mref->title, mref->artist,
-                     &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER,
-                                          GTK_ALIGN_START});
+      GtkWidget *song = music_card(
+          "./resources/GTK.png", mref->title, mref->artist, mref->seconds,
+          &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER,
+                               GTK_ALIGN_START});
       gtk_widget_set_size_request(song, 60, -1);
       gtk_box_append(GTK_BOX(state->sidebar), song);
       gtk_widget_set_name(
@@ -40,8 +41,8 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
       g_print("Year: %u\n", mref->year);
       g_print("Duration: %lu seconds\n", mref->seconds);
 
-      gtk_label_set_text(GTK_LABEL(state->songTitle), mref->title);
-      gtk_label_set_text(GTK_LABEL(state->songArtist), mref->artist);
+      // gtk_label_set_text(GTK_LABEL(state->songTitle), mref->title);
+      // gtk_label_set_text(GTK_LABEL(state->songArtist), mref->artist);
     }
     g_free(path);
     g_object_unref(file);
