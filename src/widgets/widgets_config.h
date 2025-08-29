@@ -1,8 +1,8 @@
 #ifndef WIDGETS_CONFIG_H
 #define WIDGETS_CONFIG_H
 
+#include "../definitions/definitions.h"
 #include <gtk/gtk.h>
-
 struct _WidgetPositioning {
   gboolean hexpand;
   gboolean vexpand;

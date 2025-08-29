@@ -9,6 +9,7 @@
 #include "state/song_browser_state.h"
 #include "state/song_state.h"
 #include "state/touchable_state.h"
+#include "widgets/widget_constructor.h"
 #include "widgets/widget_label.h"
 #include "widgets/widget_song_slider.h"
 #include "widgets/widget_touchable.h"
@@ -28,16 +29,28 @@ static void on_activate(GtkApplication *app) {
 
   g_object_unref(provider);
 
-  GtkWidget *window = gtk_application_window_new(app);
+  AppState *appState = malloc(sizeof(AppState));
+  if (appState == NULL)
+    return;
 
-  gtk_window_set_title(GTK_WINDOW(window), APP_CONFIG_WIN_TITLE);
-  gtk_window_set_default_size(GTK_WINDOW(window), APP_CONFIG_WIN_WIDTH,
-                              APP_CONFIG_WIN_HEIGHT);
+  Song *song = song_new("./resources/song/beautiful.mp3"); // default song
+  if (song == NULL) {
+    printf("Error allocating memory for song structure.");
+    return;
+  }
 
-  GtkWidget *root = gtk_grid_new();
-  gtk_widget_add_css_class(root, "root-grid");
-  gtk_widget_set_hexpand(root, TRUE);
-  gtk_widget_set_vexpand(root, TRUE);
+  GtkWidget *window = widget_window(
+      app, APP_CONFIG_WIN_TITLE, APP_CONFIG_WIN_WIDTH, APP_CONFIG_WIN_HEIGHT);
+
+  // GtkWidget *root = gtk_grid_new();
+  // gtk_widget_add_css_class(root, "root-grid");
+  // gtk_widget_set_hexpand(root, TRUE);
+  // gtk_widget_set_vexpand(root, TRUE);
+
+  GtkWidget *root =
+      widget_construct(gtk_grid_new, "root-application",
+                       &(WidgetPositioning){TRUE, TRUE, GTK_ALIGN_BASELINE_FILL,
+                                            GTK_ALIGN_BASELINE_FILL});
 
   // sidebar header
   GtkWidget *sidebarBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -58,9 +71,6 @@ static void on_activate(GtkApplication *app) {
   if (musics == NULL)
     return;
 
-  AppState *appState = malloc(sizeof(AppState));
-  if (appState == NULL)
-    return;
   appState->window = window;
   appState->sidebar = sidebar;
   appState->musicsCards = musics;
@@ -83,9 +93,8 @@ static void on_activate(GtkApplication *app) {
   gtk_box_append(GTK_BOX(sidebarBox), newSong);
 
   GtkWidget *scroll = gtk_scrolled_window_new();
-  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll), sidebar);
 
-  gtk_widget_add_css_class(root, "root-application");
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll), sidebar);
 
   gtk_widget_set_vexpand(scroll, FALSE);
   gtk_widget_set_hexpand(scroll, FALSE);
@@ -112,10 +121,15 @@ static void on_activate(GtkApplication *app) {
 
   // main area
 
-  GtkWidget *mainArea = gtk_grid_new();
-  gtk_widget_add_css_class(mainArea, "main-grid");
-  gtk_widget_set_hexpand(mainArea, TRUE);
-  gtk_widget_set_vexpand(mainArea, TRUE);
+  // GtkWidget *mainArea = gtk_grid_new();
+  // gtk_widget_add_css_class(mainArea, "main-grid");
+  // gtk_widget_set_hexpand(mainArea, TRUE);
+  // gtk_widget_set_vexpand(mainArea, TRUE);
+
+  GtkWidget *mainArea =
+      widget_construct(gtk_grid_new, "main-area",
+                       &(WidgetPositioning){TRUE, TRUE, GTK_ALIGN_BASELINE_FILL,
+                                            GTK_ALIGN_BASELINE_FILL});
 
   gtk_grid_set_row_homogeneous(GTK_GRID(mainArea), FALSE);
 
@@ -138,15 +152,14 @@ static void on_activate(GtkApplication *app) {
   appState->maxLabel = maxLabel;
 
   gtk_widget_set_size_request(sliderContainer, 500, -1);
-  // gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0.0f, 20.0f, 1.0f);
 
-  // gtk_widget_set_hexpand(songSlider, FALSE);
-  // gtk_widget_set_vexpand(songSlider, FALSE);
-  // gtk_widget_set_halign(songSlider, GTK_ALIGN_CENTER);
-  // gtk_widget_set_valign(songSlider, GTK_ALIGN_CENTER);
+  GtkGesture *gesture = gtk_gesture_click_new();
+  g_signal_connect(gesture, "released", G_CALLBACK(on_slider_release), NULL);
+  gtk_widget_add_controller(songSlider, GTK_EVENT_CONTROLLER(gesture));
 
-  g_signal_connect(songSlider, "value-changed", G_CALLBACK(on_slider_change),
-                   appState);
+  //   g_signal_connect(songSlider, "change-value",
+  //   G_CALLBACK(on_slider_change),
+  //                    appState);
 
   gtk_widget_add_css_class(songSlider, "music-scale");
 
@@ -174,6 +187,9 @@ static void on_activate(GtkApplication *app) {
   GtkWidget *playMusic = gtk_button_new_from_icon_name("media-playback-start");
   gtk_widget_add_css_class(playMusic, "media-control-button");
 
+  song->playButton = playMusic;
+  appState->song = song;
+
   GtkWidget *forwardMusic = gtk_button_new_from_icon_name("media-skip-forward");
   gtk_widget_add_css_class(forwardMusic, "media-control-button");
   gtk_widget_set_name(forwardMusic, "forwardButton");
@@ -183,25 +199,8 @@ static void on_activate(GtkApplication *app) {
   gtk_widget_add_css_class(shuffleMusic, "media-control-button-minor");
   gtk_widget_set_name(shuffleMusic, "shuffleButton");
 
-  Song *song = malloc(sizeof(Song));
-  if (song == NULL) {
-    printf("Error allocating memory for song structure.");
-    return;
-  }
-
-  song->path = "./resources/song/beautiful.mp3"; // default song
-  song->stream = NULL;
-  song->seconds = 0;
-  song->artist = NULL;
-  song->title = NULL;
-  song->playButton = playMusic;
-  song->state = SONG_STATE_IDLE;
-  song->playingPath = NULL;
-
-  appState->song = song;
-
   g_signal_connect(playMusic, "clicked", G_CALLBACK(song_state), appState);
-
+  g_timeout_add(1000, update_song_slider, appState);
   // g_signal_connect(ctrl, "enter", G_CALLBACK(on_card_entered), container);
 
   GtkWidget *controlsContainer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);

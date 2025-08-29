@@ -40,9 +40,6 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
       g_print("Artist: %s\n", mref->artist);
       g_print("Year: %u\n", mref->year);
       g_print("Duration: %lu seconds\n", mref->seconds);
-
-      // gtk_label_set_text(GTK_LABEL(state->songTitle), mref->title);
-      // gtk_label_set_text(GTK_LABEL(state->songArtist), mref->artist);
     }
     g_free(path);
     g_object_unref(file);

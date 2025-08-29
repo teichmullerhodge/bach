@@ -1,5 +1,6 @@
 #include "widget_music_card.h"
 #include "../helpers/charmpl.h"
+#include "../helpers/formatter.h"
 #include "../state/appstate.h"
 #include "../state/state.h"
 #include "glib-object.h"
@@ -82,7 +83,9 @@ void select_song(GtkGestureClick *gesture, int npress, double x, double y,
 
   char maxText[9];
   char minLabel[] = "0:00";
-  snprintf(maxText, 9, "%f", (double)seconds);
+
+  seconds_to_string(seconds, maxText, sizeof(maxText));
+
   gtk_label_set_label(GTK_LABEL(state->maxLabel), maxText);
   gtk_label_set_label(GTK_LABEL(state->minLabel), minLabel);
   gtk_range_set_range(GTK_RANGE(state->songSlider), 0.0f, (f32)seconds);

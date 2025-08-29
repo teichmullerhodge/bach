@@ -1,8 +1,8 @@
 #include "widget_song_slider.h"
+#include "../helpers/formatter.h"
 #include "gtk/gtk.h"
 #include "widget_label.h"
 #include <stdlib.h>
-
 GtkWidget *widget_song_slider(f32 min, f32 max, f32 step, const char *cssClass,
                               WidgetPositioning *positioning) {
 
@@ -17,8 +17,8 @@ GtkWidget *widget_song_slider(f32 min, f32 max, f32 step, const char *cssClass,
   char minText[9];
   char maxText[9];
 
-  snprintf(minText, 9, "%f", min);
-  snprintf(maxText, 9, "%f", max);
+  seconds_to_string((int)max, maxText, sizeof(maxText));
+  seconds_to_string(0, minText, sizeof(minText));
 
   GtkWidget *minLabel = widget_label(
       minText, "slider-label",

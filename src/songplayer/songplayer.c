@@ -1,5 +1,22 @@
 #include "songplayer.h"
 
+Song *song_new(const char *path) {
+  Song *song = malloc(sizeof(Song));
+  if (song == NULL) {
+    return NULL;
+  }
+
+  song->path = path;
+  song->stream = NULL;
+  song->seconds = 0;
+  song->artist = NULL;
+  song->title = NULL;
+  song->playButton = NULL;
+  song->state = SONG_STATE_IDLE;
+  song->playingPath = NULL;
+  return song;
+}
+
 void song_play(Song *song) {
   if (song->stream != NULL) {
     g_object_unref(song->stream);

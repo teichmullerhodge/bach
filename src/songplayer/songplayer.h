@@ -23,6 +23,8 @@ struct _Song {
 
 typedef struct _Song Song;
 
+Song *song_new(const char *path);
+
 void song_play(Song *song);
 void song_pause(Song *song);
 void song_resume(Song *song);
