@@ -28,18 +28,15 @@ headerbar button:hover {
     opacity: 0.6;
 }
 
-
-.root-grid {
-    background-color: #ffffff;
-}
-
 .root-application {
-    background-color: #f8f8f8;
+background: #fafeff;
 }
 
 .main-area {
-    background-color: #ffffff;
-    }
+    
+background: #fafeff;
+background: linear-gradient(90deg, rgba(250, 254, 255, 1) 0%, rgba(205, 197, 240, 0.726) 50%, rgba(255, 255, 255, 1) 100%);
+}
 
 
 
@@ -147,30 +144,32 @@ headerbar button:hover {
     border: none;
     color: #797979;
     font-size: 24px;
+    background-color: #eaeaea;
+
     padding: 10px;
     border-radius: 50%;
     transition: 0.2s ease;
-    border: 2px solid white;
+    border: 2px solid #eaeaea;
 }
 
 #favoriteButton:hover {
-    border: 2px solid rgb(145, 182, 231);
+    border: 2px solid rgb(171, 145, 231);
 }
 
 #shuffleButton:hover {
-    border: 2px solid rgb(145, 182, 231);
+    border: 2px solid rgb(171, 145, 231);
 }
 
 .media-control-button {
     background: none;
-    border: 2px solid white;
-    color: #797979;
+    border: 2px solid #eaeaea;
+    background-color: #eaeaea;
     font-size: 24px;
     padding: 10px;
     border-radius: 50%;
 }
 
 .media-control-button:hover {
-    border: 2px solid rgb(145, 182, 231);
+    border: 2px solid rgb(171, 145, 231);
     transition: background-color 0.3s ease;
 }

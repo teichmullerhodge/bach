@@ -2,64 +2,62 @@
 #include "../definitions/definitions.h"
 #include "../helpers/formatter.h"
 #include "appstate.h"
+#include "glib.h"
 #include "gtk/gtk.h"
 #include "gtk/gtkshortcut.h"
+#include "song_state.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-void on_slider_release(GtkGestureClick *gesture, int npress, double x, double y,
-                       gpointer udata) {
-
-  (void)npress;
-  (void)x;
-  (void)y;
-  printf("Slider release event triggered...\n");
-  AppState *appState = (AppState *)udata;
-
-  if (appState == NULL || appState->song == NULL) {
-    printf("No song loaded...\n");
-    return;
+gboolean on_slider_released(GtkEventController *controller, GdkEvent *event,
+                            gpointer udata) {
+  (void)controller;
+  (void)event;
+  (void)udata;
+  GdkEventType type = gdk_event_get_event_type(event);
+  if (type != GDK_BUTTON_RELEASE) {
+    return FALSE; // ignore other events
   }
 
-  if (appState->song->stream == NULL) {
-    printf("Stream is NULL...\n");
-    return;
+  AppState *state = (AppState *)udata;
+  if (is_stream_valid(state) && is_song_playing(state)) {
+    double value = gtk_range_get_value(GTK_RANGE(state->songSlider));
+    i64 val = (i64)(value * G_USEC_PER_SEC);
+    gtk_media_stream_seek(state->song->stream, val);
+    printf("Button rewinded :)\n");
+    return FALSE;
   }
+  printf("Button released but there's no song being played.!\n");
 
-  GtkWidget *slider =
-      gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
-  if (slider == NULL) {
-    printf("Slider widget is NULL...\n");
-    return;
-  }
+  return FALSE;
+}
 
-  double value = gtk_range_get_value(GTK_RANGE(slider));
+void on_slider_change(GtkRange *self, gpointer udata) {
+  (void)self;
+  (void)udata;
+  AppState *state = (AppState *)udata;
+  char minBuf[10];
+  double value = gtk_range_get_value(self);
+  seconds_to_string((i32)value, minBuf, sizeof(minBuf));
+  gtk_label_set_label(GTK_LABEL(state->minLabel), minBuf);
 
-  char minText[9];
-  seconds_to_string((int)value, minText, sizeof(minText));
-  gtk_label_set_label(GTK_LABEL(appState->minLabel), minText);
-  printf("Slider released at: %f\n", value);
-
-  gtk_media_stream_seek(appState->song->stream, value * G_TIME_SPAN_SECOND);
-  printf("Changed the media location\n");
-
+  printf("Value changed to: %f\n", value);
   return;
 }
 
-gboolean update_song_slider(gpointer udata) {
-  if (udata == NULL) {
-    return G_SOURCE_CONTINUE;
-  }
+gboolean update_slider_cb(gpointer udata) {
   AppState *state = (AppState *)udata;
-  if (state->song == NULL || state->songSlider == NULL) {
-    return G_SOURCE_CONTINUE;
-  }
-  if (state->song->state == SONG_STATE_PLAYING && state->song->stream != NULL) {
-    printf("Updating song slider...\n");
-    GtkWidget *songSlider = state->songSlider;
-    double pos = gtk_range_get_value(GTK_RANGE(songSlider));
-    gtk_range_set_value(GTK_RANGE(state->songSlider), pos + 1.0f);
-  }
+  if (is_stream_valid(state) && is_song_playing(state)) {
 
-  return G_SOURCE_CONTINUE;
+    i64 dur = gtk_media_stream_get_duration(state->song->stream);
+    if (dur > 0) {
+      char minBuf[10];
+      double rangeVal = gtk_range_get_value(GTK_RANGE(state->songSlider));
+      seconds_to_string((i32)rangeVal, minBuf, sizeof(minBuf));
+      gtk_range_set_value(GTK_RANGE(state->songSlider), rangeVal + 0.1f);
+      gtk_label_set_label(GTK_LABEL(state->minLabel), minBuf);
+    }
+    return TRUE;
+  }
+  return TRUE;
 }

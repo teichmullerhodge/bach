@@ -7,6 +7,7 @@
 #include "state/appstate.h"
 #include "state/shared_state.h"
 #include "state/song_browser_state.h"
+#include "state/song_slider_state.h"
 #include "state/song_state.h"
 #include "state/touchable_state.h"
 #include "widgets/widget_constructor.h"
@@ -41,11 +42,6 @@ static void on_activate(GtkApplication *app) {
 
   GtkWidget *window = widget_window(
       app, APP_CONFIG_WIN_TITLE, APP_CONFIG_WIN_WIDTH, APP_CONFIG_WIN_HEIGHT);
-
-  // GtkWidget *root = gtk_grid_new();
-  // gtk_widget_add_css_class(root, "root-grid");
-  // gtk_widget_set_hexpand(root, TRUE);
-  // gtk_widget_set_vexpand(root, TRUE);
 
   GtkWidget *root =
       widget_construct(gtk_grid_new, "root-application",
@@ -119,13 +115,6 @@ static void on_activate(GtkApplication *app) {
   gtk_box_append(GTK_BOX(sidebarBox), scroll);
   gtk_box_append(GTK_BOX(sidebar), nothingFound);
 
-  // main area
-
-  // GtkWidget *mainArea = gtk_grid_new();
-  // gtk_widget_add_css_class(mainArea, "main-grid");
-  // gtk_widget_set_hexpand(mainArea, TRUE);
-  // gtk_widget_set_vexpand(mainArea, TRUE);
-
   GtkWidget *mainArea =
       widget_construct(gtk_grid_new, "main-area",
                        &(WidgetPositioning){TRUE, TRUE, GTK_ALIGN_BASELINE_FILL,
@@ -148,18 +137,24 @@ static void on_activate(GtkApplication *app) {
   GtkWidget *maxLabel = gtk_widget_get_last_child(labelsRow);
 
   appState->songSlider = songSlider;
+
+  // Crie o controlador legacy para capturar eventos raw
+  GtkEventController *legacy_controller = gtk_event_controller_legacy_new();
+  gtk_event_controller_set_propagation_phase(legacy_controller,
+                                             GTK_PHASE_CAPTURE);
+  gtk_widget_add_controller(songSlider, legacy_controller);
+  g_signal_connect(legacy_controller, "event", G_CALLBACK(on_slider_released),
+                   appState);
+  g_signal_connect(songSlider, "value-changed", G_CALLBACK(on_slider_change),
+                   appState);
+  g_timeout_add(100, (GSourceFunc)update_slider_cb, appState);
+  appState->minLabel = minLabel;
+  appState->maxLabel = maxLabel;
+
   appState->minLabel = minLabel;
   appState->maxLabel = maxLabel;
 
   gtk_widget_set_size_request(sliderContainer, 500, -1);
-
-  GtkGesture *gesture = gtk_gesture_click_new();
-  g_signal_connect(gesture, "released", G_CALLBACK(on_slider_release), NULL);
-  gtk_widget_add_controller(songSlider, GTK_EVENT_CONTROLLER(gesture));
-
-  //   g_signal_connect(songSlider, "change-value",
-  //   G_CALLBACK(on_slider_change),
-  //                    appState);
 
   gtk_widget_add_css_class(songSlider, "music-scale");
 
@@ -200,8 +195,6 @@ static void on_activate(GtkApplication *app) {
   gtk_widget_set_name(shuffleMusic, "shuffleButton");
 
   g_signal_connect(playMusic, "clicked", G_CALLBACK(song_state), appState);
-  g_timeout_add(1000, update_song_slider, appState);
-  // g_signal_connect(ctrl, "enter", G_CALLBACK(on_card_entered), container);
 
   GtkWidget *controlsContainer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
 
@@ -223,6 +216,12 @@ static void on_activate(GtkApplication *app) {
   gtk_grid_attach(GTK_GRID(mainArea), songArtist, 0, 3, 1, 1);
 
   gtk_grid_attach(GTK_GRID(mainArea), controlsContainer, 0, 4, 1, 1);
+
+  //   gtk_widget_set_visible(sliderContainer, FALSE);
+  //   gtk_widget_set_visible(controlsContainer, FALSE);
+
+  appState->sliderContainer = sliderContainer;
+  appState->controlsContainer = controlsContainer;
 
   gtk_grid_attach(GTK_GRID(root), sidebarBox, 0, 0, 1, 1);
   gtk_grid_attach(GTK_GRID(root), mainArea, 1, 0, 1, 1);

@@ -5,9 +5,10 @@
 #include "../songplayer/songplayer.h"
 #include <gtk/gtk.h>
 
-void on_slider_release(GtkGestureClick *gesture, int n_press, double x,
-                       double y, gpointer udata);
+gboolean on_slider_released(GtkEventController *controller, GdkEvent *event,
+                            gpointer udata);
+void on_slider_change(GtkRange *self, gpointer udata);
 
-gboolean update_song_slider(gpointer udata);
+gboolean update_slider_cb(gpointer udata);
 
 #endif // SONG_SLIDER_STATE_H

@@ -1,6 +1,5 @@
 #include "song_state.h"
 #include "../songplayer/songplayer.h"
-#include "appstate.h"
 
 void song_state(GtkButton *btn, gpointer udata) {
   (void)btn;
@@ -39,4 +38,12 @@ void song_state(GtkButton *btn, gpointer udata) {
     return;
   }
   }
+}
+
+bool is_song_playing(AppState *state) {
+  return state->song != NULL && state->song->state == SONG_STATE_PLAYING;
+}
+
+bool is_stream_valid(AppState *state) {
+  return state->song != NULL && state->song->stream != NULL;
 }

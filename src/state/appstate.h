@@ -4,6 +4,7 @@
 #include "../helpers/vecbox.h"
 #include "../songplayer/songplayer.h"
 #include <gtk/gtk.h>
+
 struct _AppState {
   GtkWidget *window;
   GtkWidget *sidebar;
@@ -12,6 +13,11 @@ struct _AppState {
   GtkWidget *songSlider;
   GtkWidget *minLabel;
   GtkWidget *maxLabel;
+
+  // shared layout
+
+  GtkWidget *sliderContainer;
+  GtkWidget *controlsContainer;
 
   VecBox *musicsCards;
   const char *selectedPath;

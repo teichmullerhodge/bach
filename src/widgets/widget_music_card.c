@@ -1,7 +1,9 @@
 #include "widget_music_card.h"
+
 #include "../helpers/charmpl.h"
 #include "../helpers/formatter.h"
 #include "../state/appstate.h"
+#include "../state/song_state.h"
 #include "../state/state.h"
 #include "glib-object.h"
 #include "glib.h"
@@ -81,6 +83,9 @@ void select_song(GtkGestureClick *gesture, int npress, double x, double y,
   state->song->artist = songTitle;
   state->song->title = artist;
 
+  gtk_widget_set_visible(state->sliderContainer, TRUE);
+  gtk_widget_set_visible(state->controlsContainer, TRUE);
+
   char maxText[9];
   char minLabel[] = "0:00";
 
@@ -93,6 +98,10 @@ void select_song(GtkGestureClick *gesture, int npress, double x, double y,
   gtk_range_set_value(GTK_RANGE(state->songSlider), 0.0f);
 
   printf("Min: %f - Max: %f\n", 0.0f, (f32)seconds);
+
+  // start playing the song.
+
+  song_state(GTK_BUTTON(state->song->playButton), state);
 
   // gtk_label_set_text(GTK_LABEL(state->songTitle),
   //                    songTitle != NULL ? songTitle : "Unknown title");
