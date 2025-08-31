@@ -252,3 +252,46 @@ background: #fafeff;
     border-radius: 50%;
     transition: 0.2s ease;
 }
+
+.new-playlist-button {
+    margin: 10px;
+    border-radius: 5px;
+    background: none;
+    background-color: #eaeaea;
+    border: none;
+    color: #797979;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.custom-dialog {
+    background:none;
+    background-color: #fafeff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.custom-dialog-label {
+    color: #797979;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.custom-dialog-buttons {
+    margin-top: 16px;
+}
+
+.custom-dialog-button {
+    background: #eaeaea;
+    color: #797979;
+    border-radius: 6px;
+    padding: 6px 14px;
+    border: 1px solid whitesmoke;
+}
+
+.custom-dialog-button:hover {
+    border: 1px solid whitesmoke;
+    background: #dcdce0;
+    transition: background-color 0.3s ease;
+
+}

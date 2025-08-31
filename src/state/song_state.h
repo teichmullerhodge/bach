@@ -8,4 +8,10 @@ bool switch_song(Song *state);
 void song_state(GtkButton *btn, gpointer udata);
 bool is_song_playing(AppState *state);
 bool is_stream_valid(AppState *state);
+
+void previous_music(GtkButton *btn, gpointer udata);
+void next_music(GtkButton *btn, gpointer udata);
+
+void change_state_by_music_card(GtkWidget *card, AppState *state);
+
 #endif // SONG_STATE_H

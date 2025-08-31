@@ -75,53 +75,16 @@ void select_song(GtkGestureClick *gesture, int npress, double x, double y,
       gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(gesture));
   AppState *state = (AppState *)udata;
 
-  const char *path = gtk_widget_get_name(card);
+  change_state_by_music_card(card, state);
 
-  if (state->lastSelectedCard == NULL) {
-    state->lastSelectedCard = card;
-    gtk_widget_add_css_class(card, "music-selected");
-  } else {
-    gtk_widget_remove_css_class(state->lastSelectedCard, "music-selected");
-    gtk_widget_add_css_class(card, "music-selected");
-    state->lastSelectedCard = card;
+  for (size_t i = 0; i < state->musicRowCount; i++) {
+    GtkWidget *child = gtk_grid_get_child_at(GTK_GRID(state->songsGrid), 0, i);
+    if (child == card) {
+      state->lastSelectedMusicRow = i;
+      printf("Updated lastSelectedMusicRow to %zu\n", i);
+      break;
+    }
   }
-
-  char *songTitle = g_object_get_data(G_OBJECT(card), "song-title");
-  char *artist = g_object_get_data(G_OBJECT(card), "song-artist");
-  double *duration = g_object_get_data(G_OBJECT(card), "song-seconds");
-
-  state->selectedPath = path;
-  if (state->song)
-    state->song->path = path;
-
-  f32 seconds = *duration;
-  state->song->artist = songTitle;
-  state->song->title = artist;
-
-  gtk_label_set_text(GTK_LABEL(state->songTitle),
-                     songTitle != NULL ? songTitle : "Unknown title");
-  gtk_label_set_text(GTK_LABEL(state->songArtist),
-                     artist != NULL ? artist : "Unknown artist");
-
-  gtk_widget_set_visible(state->sliderContainer, TRUE);
-  gtk_widget_set_visible(state->controlsContainer, TRUE);
-
-  char maxText[9];
-  char minLabel[] = "0:00";
-
-  seconds_to_string(seconds, maxText, sizeof(maxText));
-
-  gtk_label_set_label(GTK_LABEL(state->maxLabel), maxText);
-  gtk_label_set_label(GTK_LABEL(state->minLabel), minLabel);
-  gtk_range_set_range(GTK_RANGE(state->songSlider), 0.0f, (f32)seconds);
-
-  gtk_range_set_value(GTK_RANGE(state->songSlider), 0.0f);
-
-  printf("Min: %f - Max: %f\n", 0.0f, (f32)seconds);
-
-  // start playing the song.
-
-  song_state(GTK_BUTTON(state->song->playButton), state);
 
   // gtk_label_set_text(GTK_LABEL(state->songTitle),
   //                    songTitle != NULL ? songTitle : "Unknown title");

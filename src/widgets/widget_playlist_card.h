@@ -3,5 +3,6 @@
 
 #include "widgets_config.h"
 GtkWidget *playlist_card(const char *cssclass, WidgetPositioning *pos);
-
+GtkWidget *playlist_card_with_label(const char *label, const char *cssclass,
+                                    WidgetPositioning *pos);
 #endif // WIDGET_PLAYLIST_CARD_H

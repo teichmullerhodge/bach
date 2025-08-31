@@ -41,7 +41,6 @@ void on_slider_change(GtkRange *self, gpointer udata) {
   seconds_to_string((i32)value, minBuf, sizeof(minBuf));
   gtk_label_set_label(GTK_LABEL(state->minLabel), minBuf);
 
-  printf("Value changed to: %f\n", value);
   return;
 }
 

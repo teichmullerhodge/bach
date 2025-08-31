@@ -68,9 +68,9 @@ bool load_music_cards(AppState *appState) {
         "./resources/GTK.png", mref->title, mref->artist, mref->seconds,
         &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START});
 
-    gtk_grid_attach(GTK_GRID(appState->songsGrid), song, 0, appState->rowCount,
-                    1, 1);
-    appState->rowCount++;
+    gtk_grid_attach(GTK_GRID(appState->songsGrid), song, 0,
+                    appState->musicRowCount, 1, 1);
+    appState->musicRowCount++;
 
     gtk_widget_set_name(
         song,
@@ -84,4 +84,45 @@ bool load_music_cards(AppState *appState) {
 
   closedir(dir);
   return true;
+}
+
+char **get_files_in_directory(const char *directory,
+                              const char **excludesPrefix, size_t *filec) {
+  DIR *dir = opendir(directory);
+  if (!dir) {
+    perror("opendir");
+    return NULL;
+  }
+
+  char **files = NULL;
+  size_t count = 0;
+  struct dirent *entry;
+
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+      continue;
+
+    bool exclude = false;
+    if (excludesPrefix) {
+      for (const char **prefix = excludesPrefix; *prefix != NULL; prefix++) {
+        if (g_str_has_prefix(entry->d_name, *prefix)) {
+          exclude = true;
+          break;
+        }
+      }
+    }
+    if (exclude)
+      continue;
+
+    char fullpath[2048];
+    snprintf(fullpath, sizeof(fullpath), "%s/%s", directory, entry->d_name);
+
+    files = realloc(files, sizeof(char *) * (count + 1));
+    files[count] = strdup(fullpath);
+    count++;
+  }
+
+  closedir(dir);
+  *filec = count;
+  return files;
 }

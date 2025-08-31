@@ -3,6 +3,7 @@
 
 #include "../helpers/vecbox.h"
 #include "../songplayer/songplayer.h"
+#include "../store/store.h"
 #include <gtk/gtk.h>
 
 struct _AppState {
@@ -25,13 +26,21 @@ struct _AppState {
   GtkWidget *sliderContainer;
   GtkWidget *controlsContainer;
 
-  VecBox *musicsCards;
+  KVStore *configStore;
+  KVStore *musicsStore;
+  KVStore *playlistStore;
+
   const char *selectedPath;
   Song *song;
   GtkWidget *lastSelectedCard; // keeps the reference of the lastSelectedCard.
-  size_t rowCount;
+  size_t lastSelectedMusicRow;
+  size_t musicRowCount;
+  size_t playlistRowCount;
 };
 
 typedef struct _AppState AppState;
+
+void clear_songs_grid(AppState *state);
+void clear_playlist_grid(AppState *state);
 
 #endif // APPSTATE_H
