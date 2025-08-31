@@ -10,19 +10,32 @@
 #include "gtk/gtk.h"
 #include "widget_image.h"
 #include "widget_label.h"
+#include "widget_touchable.h"
 
 GtkWidget *music_card(const char *imagepath, const char *songTitle,
                       const char *author, u64 duration,
                       WidgetPositioning *pos) {
-
   GtkEventController *ctrl = gtk_event_controller_motion_new();
 
   GtkWidget *infoContainer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
   GtkWidget *container = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
 
-  GtkWidget *image = widget_image(imagepath, 40, NULL, NULL);
-  GtkWidget *song = widget_label(songTitle, "music-card-title", NULL);
-  GtkWidget *aut = widget_label(author, "music-card-author", NULL);
+  GtkWidget *image = widget_image(imagepath, 40, "music-card-image", NULL);
+
+  GtkWidget *song = widget_label(
+      songTitle, "music-card-title",
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_START, GTK_ALIGN_START});
+
+  gtk_label_set_ellipsize(GTK_LABEL(song),
+                          PANGO_ELLIPSIZE_END); // corta com "..."
+
+  GtkWidget *aut = widget_label(
+      author, "music-card-author",
+
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_START, GTK_ALIGN_START}
+
+  );
+  gtk_label_set_ellipsize(GTK_LABEL(aut), PANGO_ELLIPSIZE_END);
 
   g_signal_connect(ctrl, "enter", G_CALLBACK(cursor_pointer), container);
   g_signal_connect(ctrl, "leave", G_CALLBACK(cursor_default), container);
@@ -43,6 +56,8 @@ GtkWidget *music_card(const char *imagepath, const char *songTitle,
   gtk_widget_add_controller(container, ctrl);
 
   set_configs(container, "music-card", pos);
+
+  gtk_widget_set_size_request(container, 30, 30);
 
   return container;
 }
@@ -82,6 +97,11 @@ void select_song(GtkGestureClick *gesture, int npress, double x, double y,
   f32 seconds = *duration;
   state->song->artist = songTitle;
   state->song->title = artist;
+
+  gtk_label_set_text(GTK_LABEL(state->songTitle),
+                     songTitle != NULL ? songTitle : "Unknown title");
+  gtk_label_set_text(GTK_LABEL(state->songArtist),
+                     artist != NULL ? artist : "Unknown artist");
 
   gtk_widget_set_visible(state->sliderContainer, TRUE);
   gtk_widget_set_visible(state->controlsContainer, TRUE);

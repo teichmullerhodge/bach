@@ -22,10 +22,10 @@ void new_song_browser(GObject *source, GAsyncResult *res, gpointer udata) {
 
       GtkWidget *song = music_card(
           "./resources/GTK.png", mref->title, mref->artist, mref->seconds,
-          &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER,
-                               GTK_ALIGN_START});
-      gtk_widget_set_size_request(song, 60, -1);
-      gtk_box_append(GTK_BOX(state->sidebar), song);
+          &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START});
+      gtk_grid_attach(GTK_GRID(state->songsGrid), song, 0, state->rowCount, 1,
+                      1);
+      state->rowCount++;
       gtk_widget_set_name(
           song,
           mref->path); // set the path as the name, will be used later for ref.

@@ -7,7 +7,13 @@
 
 struct _AppState {
   GtkWidget *window;
-  GtkWidget *sidebar;
+  GtkWidget *mainArea;
+
+  GtkWidget *songsGrid;
+  GtkWidget *playlistGrid;
+  GtkWidget *sideScroll;
+  GtkWidget *viewStack;
+
   GtkWidget *songTitle;
   GtkWidget *songArtist;
   GtkWidget *songSlider;
@@ -23,6 +29,7 @@ struct _AppState {
   const char *selectedPath;
   Song *song;
   GtkWidget *lastSelectedCard; // keeps the reference of the lastSelectedCard.
+  size_t rowCount;
 };
 
 typedef struct _AppState AppState;

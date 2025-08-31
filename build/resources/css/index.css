@@ -1,4 +1,8 @@
 
+text selection {
+  background-color: transparent;
+  color: inherit;
+}
 *{
     color: #797979;
 }
@@ -32,11 +36,26 @@ headerbar button:hover {
 background: #fafeff;
 }
 
-.main-area {
-    
-background: #fafeff;
-background: linear-gradient(90deg, rgba(250, 254, 255, 1) 0%, rgba(205, 197, 240, 0.726) 50%, rgba(255, 255, 255, 1) 100%);
+@keyframes colorChange {
+  0%   { background: #fafeff; }
+  20%  { background: #eaeffc; }
+  40%  { background: #faf1ff; }
+  60%  { background: #fff3f3; }
+  80%  { background: #ffeff8; }
+  100% { background: #f0fcff; }
 }
+
+ .main-area {
+    background-color: #fafeff;
+} 
+
+ .main-area-moving {
+  background: linear-gradient(135deg, #fafeff, #9eb2ee, #be80e2, #e7dc73, #e997c4);
+  background-size: 400% 400%;
+  animation: colorChange 8s ease-in-out infinite alternate;
+  transition: background 1s ease-in-out;
+} 
+
 
 
 
@@ -59,16 +78,18 @@ background: linear-gradient(90deg, rgba(250, 254, 255, 1) 0%, rgba(205, 197, 240
 
 }
 
-.new-song-button {
+.header-button {
     margin: 10px;
     border-radius: 5px;
     background: none;
     background-color: #eaeaea;
     border: none;
     color: #797979;
+    font-size: 13px;
+    font-weight: 500;
 }
 
-.new-song-button:hover {
+.header-button:hover {
     opacity: 0.8;
     transition: background-color 0.3s ease;
 
@@ -98,13 +119,13 @@ background: linear-gradient(90deg, rgba(250, 254, 255, 1) 0%, rgba(205, 197, 240
 
 .music-selected {
     background: none;
-    background-color: #eaeaea;
-    border: 1px solid whitesmoke;
+    border: 1px solid rgb(171, 145, 231);
+
 }
 
 .music-card:hover {
-    background-color: #eaeaea;
     transition: background-color 0.3s ease;
+    border: 1px solid rgb(171, 145, 231);
 
 }
 
@@ -115,6 +136,17 @@ background: linear-gradient(90deg, rgba(250, 254, 255, 1) 0%, rgba(205, 197, 240
     padding: 20px;
     background: none;
 
+}
+
+
+
+.music-play-pause {
+    background: none;
+    border: none;
+
+    padding: 3px;
+    border-radius: 50%;
+    transition: 0.2s ease;
 }
 
 
@@ -135,6 +167,7 @@ background: linear-gradient(90deg, rgba(250, 254, 255, 1) 0%, rgba(205, 197, 240
 
 .controls-container {
     margin-top: 15px;
+    margin-left: 110px;  
     
 }
 
@@ -172,4 +205,50 @@ background: linear-gradient(90deg, rgba(250, 254, 255, 1) 0%, rgba(205, 197, 240
 .media-control-button:hover {
     border: 2px solid rgb(171, 145, 231);
     transition: background-color 0.3s ease;
+}
+
+
+.playlist-card {
+
+     padding: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 5px;
+    background: none;
+    transition: 0.2s ease;
+    border: 1px solid whitesmoke;
+    color: #797979;
+    margin-top: 10px;
+
+}
+
+.playlist-card:hover {
+    transition: background-color 0.3s ease;
+    border: 1px solid rgb(171, 145, 231);
+
+}
+
+.playlist-editable-label {
+    font-size: 14px;
+    color: #333;
+    outline: none;
+}
+
+.playlist-editable-label text {
+    background:none;
+
+    outline: none;
+}
+
+.playlist-card-button {
+    background: none;
+    border: none;
+    color: #797979;
+    font-size: 18px;
+    background-color: whitesmoke;
+    
+
+    padding: 5px;
+    border-radius: 50%;
+    transition: 0.2s ease;
 }

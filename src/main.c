@@ -1,6 +1,7 @@
 #include "appconfig/appconfig.h"
 #include "definitions/definitions.h"
 #include "glib-object.h"
+#include "helpers/dirreader.h"
 #include "helpers/vecbox.h"
 #include "metadata_r/metadata_r.h"
 #include "songplayer/songplayer.h"
@@ -10,10 +11,13 @@
 #include "state/song_slider_state.h"
 #include "state/song_state.h"
 #include "state/touchable_state.h"
+#include "view/view.h"
 #include "widgets/widget_constructor.h"
+#include "widgets/widget_dialog.h"
 #include "widgets/widget_label.h"
 #include "widgets/widget_song_slider.h"
 #include "widgets/widget_touchable.h"
+#include "widgets/widget_volume_controller.h"
 #include "widgets/widgets.h"
 #include "widgets/widgets_config.h"
 #include <gtk/gtk.h>
@@ -43,6 +47,8 @@ static void on_activate(GtkApplication *app) {
   GtkWidget *window = widget_window(
       app, APP_CONFIG_WIN_TITLE, APP_CONFIG_WIN_WIDTH, APP_CONFIG_WIN_HEIGHT);
 
+  gtk_widget_add_css_class(window, "window-main");
+
   GtkWidget *root =
       widget_construct(gtk_grid_new, "root-application",
                        &(WidgetPositioning){TRUE, TRUE, GTK_ALIGN_BASELINE_FILL,
@@ -59,16 +65,41 @@ static void on_activate(GtkApplication *app) {
   gtk_widget_set_name(entry, "MusicSearch");
 
   GtkWidget *newSong = touchable(
-      "Browse songs", "audio-card-symbolic", "new-song-button",
-      &(WidgetPositioning){FALSE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START});
+      "+", "folder-music-symbolic", "header-button",
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+  GtkWidget *musicView = touchable(
+      "Playing", "audio-card-symbolic", "header-button",
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
 
-  GtkWidget *sidebar = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  GtkWidget *playlistView = touchable(
+      "Playlist", "view-list-symbolic", "header-button",
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+
+  GtkWidget *sidebar =
+      gtk_grid_new(); // gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+
+  GtkWidget *playlistGrid = gtk_grid_new();
+  GtkWidget *p1 = playlist_card(
+      "playlist-card",
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+  GtkWidget *p2 = playlist_card(
+      "playlist-card",
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+  GtkWidget *p3 = playlist_card(
+      "playlist-card",
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+
+  gtk_grid_attach(GTK_GRID(playlistGrid), p1, 0, 0, 1, 1);
+  gtk_grid_attach(GTK_GRID(playlistGrid), p2, 0, 1, 1, 1);
+  gtk_grid_attach(GTK_GRID(playlistGrid), p3, 0, 2, 1, 1);
+
+  appState->playlistGrid = playlistGrid;
+
   VecBox *musics = box_new();
   if (musics == NULL)
     return;
 
   appState->window = window;
-  appState->sidebar = sidebar;
   appState->musicsCards = musics;
   appState->selectedPath = NULL;
   appState->song = NULL;
@@ -79,18 +110,45 @@ static void on_activate(GtkApplication *app) {
   appState->minLabel = NULL;
   appState->maxLabel = NULL;
 
+  appState->songsGrid = sidebar;
+  appState->rowCount = 0;
   g_signal_connect(newSong, "clicked", G_CALLBACK(on_new_song_clicked),
                    appState);
+  g_signal_connect(playlistView, "clicked", G_CALLBACK(playlist_view),
+                   appState);
 
-  gtk_widget_set_size_request(newSong, 80, -1);
+  g_signal_connect(musicView, "clicked", G_CALLBACK(music_view), appState);
+
+  gtk_widget_set_size_request(newSong, 40, -1);
+  gtk_widget_set_size_request(musicView, 40, -1);
+  gtk_widget_set_size_request(playlistView, 40, -1);
+
+  GtkWidget *buttonsBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
+  gtk_widget_set_vexpand(buttonsBox, FALSE);
+  gtk_widget_set_hexpand(buttonsBox, FALSE);
+
+  gtk_box_append(GTK_BOX(buttonsBox), newSong);
+  gtk_box_append(GTK_BOX(buttonsBox), musicView);
+
+  gtk_box_append(GTK_BOX(buttonsBox), playlistView);
 
   gtk_box_append(GTK_BOX(sidebarBox), musicsLabel);
   gtk_box_append(GTK_BOX(sidebarBox), entry);
-  gtk_box_append(GTK_BOX(sidebarBox), newSong);
+  gtk_box_append(GTK_BOX(sidebarBox), buttonsBox);
 
   GtkWidget *scroll = gtk_scrolled_window_new();
+  appState->sideScroll = scroll;
 
-  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll), sidebar);
+  appState->viewStack = gtk_stack_new();
+  gtk_stack_add_named(GTK_STACK(appState->viewStack), appState->songsGrid,
+                      "songs");
+  gtk_stack_add_named(GTK_STACK(appState->viewStack), appState->playlistGrid,
+                      "playlist");
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(appState->sideScroll),
+                                appState->viewStack);
+
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll),
+                                appState->viewStack);
 
   gtk_widget_set_vexpand(scroll, FALSE);
   gtk_widget_set_hexpand(scroll, FALSE);
@@ -113,12 +171,16 @@ static void on_activate(GtkApplication *app) {
   g_signal_connect(entry, "changed", G_CALLBACK(on_search_changed), sidebar);
 
   gtk_box_append(GTK_BOX(sidebarBox), scroll);
-  gtk_box_append(GTK_BOX(sidebar), nothingFound);
+
+  gtk_grid_attach(GTK_GRID(appState->songsGrid), nothingFound, 0,
+                  appState->rowCount, 1, 1);
+  appState->rowCount++;
 
   GtkWidget *mainArea =
       widget_construct(gtk_grid_new, "main-area",
                        &(WidgetPositioning){TRUE, TRUE, GTK_ALIGN_BASELINE_FILL,
                                             GTK_ALIGN_BASELINE_FILL});
+  appState->mainArea = mainArea;
 
   gtk_grid_set_row_homogeneous(GTK_GRID(mainArea), FALSE);
 
@@ -198,8 +260,18 @@ static void on_activate(GtkApplication *app) {
 
   GtkWidget *controlsContainer = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
 
+  GtkWidget *volumeControl = volume_controller(
+      GTK_ORIENTATION_HORIZONTAL, "volume-controller",
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+  GtkWidget *volumeSlider = gtk_widget_get_last_child(volumeControl);
+  g_signal_connect(volumeSlider, "value-changed", G_CALLBACK(on_volume_change),
+                   appState);
+
+  gtk_widget_set_size_request(volumeControl, 100, -1);
+
   gtk_widget_add_css_class(controlsContainer, "controls-container");
   gtk_widget_set_halign(controlsContainer, GTK_ALIGN_CENTER);
+  gtk_widget_set_valign(controlsContainer, GTK_ALIGN_CENTER);
 
   gtk_box_append(GTK_BOX(controlsContainer), favoriteMusic);
 
@@ -209,6 +281,8 @@ static void on_activate(GtkApplication *app) {
 
   gtk_box_append(GTK_BOX(controlsContainer), shuffleMusic);
 
+  gtk_box_append(GTK_BOX(controlsContainer), volumeControl);
+
   gtk_grid_attach(GTK_GRID(mainArea), musicImage, 0, 0, 1, 1);
   gtk_grid_attach(GTK_GRID(mainArea), sliderContainer, 0, 1, 1, 1);
 
@@ -217,9 +291,13 @@ static void on_activate(GtkApplication *app) {
 
   gtk_grid_attach(GTK_GRID(mainArea), controlsContainer, 0, 4, 1, 1);
 
-  //   gtk_widget_set_visible(sliderContainer, FALSE);
-  //   gtk_widget_set_visible(controlsContainer, FALSE);
+  gtk_widget_set_visible(sliderContainer, FALSE);
+  gtk_widget_set_visible(controlsContainer, FALSE);
 
+  bool musicLoaded = load_music_cards(appState);
+  if (musicLoaded == false) {
+    printf("No music files found in the Music directory.\n");
+  }
   appState->sliderContainer = sliderContainer;
   appState->controlsContainer = controlsContainer;
 
