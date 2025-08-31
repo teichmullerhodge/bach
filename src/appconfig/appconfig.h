@@ -3,8 +3,9 @@
 
 #define APP_CONFIG_WIN_WIDTH 960
 #define APP_CONFIG_WIN_HEIGHT 540
-#define APP_CONFIG_WIN_TITLE "Bach"
+#define APP_CONFIG_WIN_TITLE "Für Elise"
 #define APP_CONFIG_WIN_ICON_PATH "resources/icon.png"
-#define APP_CONFIG_APP_ID "com.bach.app"
+
+#define APP_CONFIG_APP_ID "com.furelise.app"
 #define APP_CONFIG_APP_FLAGS G_APPLICATION_DEFAULT_FLAGS
 #endif // APPCONFIG_H

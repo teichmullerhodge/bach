@@ -3,7 +3,7 @@
 
 #include "../state/appstate.h"
 
-#define MUSIC_STORE_CONF_PATH "%s/.config/bach/music.conf"
+#define MUSIC_STORE_CONF_PATH "%s/.config/furelise/music.conf"
 
 bool load_music_store(AppState *state, const char *home);
 // used in playlists

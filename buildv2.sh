@@ -7,7 +7,7 @@ LDFLAGS="$(pkg-config --libs gtk4) -ltag_c"
 
 SRC_DIR=src
 BUILD_DIR=build
-OUTPUT=$BUILD_DIR/bach.elf
+OUTPUT=$BUILD_DIR/furelise.elf
 
 mkdir -p $BUILD_DIR
 
