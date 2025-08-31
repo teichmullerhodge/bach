@@ -22,10 +22,10 @@ GtkWidget *widget_song_slider(f32 min, f32 max, f32 step, const char *cssClass,
 
   GtkWidget *minLabel = widget_label(
       minText, "slider-label",
-      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_START, GTK_ALIGN_CENTER});
   GtkWidget *maxLabel = widget_label(
       maxText, "slider-label",
-      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_CENTER});
+      &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_END, GTK_ALIGN_CENTER});
 
   gtk_box_append(GTK_BOX(containerBox), songSlider);
   gtk_box_append(GTK_BOX(labelsRow), minLabel);

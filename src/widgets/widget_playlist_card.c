@@ -14,10 +14,6 @@ GtkWidget *playlist_card(const char *cssclass, WidgetPositioning *pos) {
   GtkWidget *playPause = touchable(NULL, "media-playback-start-symbolic",
                                    "playlist-card-button", NULL);
 
-  // g_signal_connect(playPause, "clicked",
-  // G_CALLBACK(on_playlist_play_clicked),
-  //                  editableLabel);
-
   gtk_box_append(GTK_BOX(container), editableLabel);
 
   gtk_box_append(GTK_BOX(container), playPause);
@@ -38,10 +34,6 @@ GtkWidget *playlist_card_with_label(const char *label, const char *cssclass,
       touchable(NULL, "audio-card-symbolic", "playlist-card-button", NULL);
   GtkWidget *playPause = touchable(NULL, "media-playback-start-symbolic",
                                    "playlist-card-button", NULL);
-
-  // g_signal_connect(playPause, "clicked",
-  // G_CALLBACK(on_playlist_play_clicked),
-  //                  editableLabel);
 
   gtk_box_append(GTK_BOX(container), editableLabel);
 

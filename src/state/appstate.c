@@ -6,6 +6,7 @@ void clear_songs_grid(AppState *state) {
     gtk_grid_remove(GTK_GRID(state->songsGrid), child);
   }
   state->musicRowCount = 0;
+  state->lastSelectedCard = NULL;
 }
 
 void clear_playlist_grid(AppState *state) {

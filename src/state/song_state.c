@@ -71,6 +71,7 @@ void change_state_by_music_card(GtkWidget *card, AppState *state) {
     state->lastSelectedCard = card;
     gtk_widget_add_css_class(card, "music-selected");
   } else {
+
     gtk_widget_remove_css_class(state->lastSelectedCard, "music-selected");
     gtk_widget_add_css_class(card, "music-selected");
     state->lastSelectedCard = card;
