@@ -29,3 +29,26 @@ bool is_valid_metadata_info(const char *s) {
   }
   return true;
 }
+
+char *basename_no_ext(const char *path) {
+  if (path == NULL)
+    return NULL;
+
+  const char *filename = strrchr(path, '/');
+  if (filename) {
+    filename++;
+  } else {
+    filename = path;
+  }
+
+  char *name = strdup(filename);
+  if (!name)
+    return NULL;
+
+  char *dot = strrchr(name, '.');
+  if (dot) {
+    *dot = '\0';
+  }
+
+  return name;
+}

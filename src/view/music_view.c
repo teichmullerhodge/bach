@@ -20,31 +20,38 @@ bool new_music_card(AppState *state, const char *path) {
   if (!mref)
     return false;
 
-  bool valid = true;
+  // bool valid = true;
 
-  printf("aritst: %s\n", mref->artist);
-  printf("title: %s\n", mref->title);
-  printf("year: %u\n", mref->year);
-  printf("seconds: %lu\n", mref->seconds);
+  // printf("aritst: %s\n", mref->artist);
+  // printf("title: %s\n", mref->title);
+  // printf("year: %u\n", mref->year);
+  // printf("seconds: %lu\n", mref->seconds);
 
-  if (!is_valid_metadata_info(mref->title))
-    valid = false;
-  if (!is_valid_metadata_info(mref->artist))
-    valid = false;
-  if (mref->year == 0 || mref->year > 2100)
-    valid = false;
-  if (mref->seconds <= 0 ||
-      mref->seconds > 86400 * 10 /* 10 days of audio. */) {
-    valid = false;
-  }
+  // if (!is_valid_metadata_info(mref->title))
+  //   valid = false;
+  // if (!is_valid_metadata_info(mref->artist))
+  //   valid = false;
+  // if (mref->year == 0 || mref->year > 2100)
+  //   valid = false;
+  // if (mref->seconds <= 0 ||
+  //     mref->seconds > 86400 * 10 /* 10 days of audio. */) {
+  //   valid = false;
+  // }
 
-  if (!valid) {
-    g_print("⚠️ Ignoring invalid file: %s\n", path);
-    return false;
-  }
+  // if (!valid) {
+  //   g_print("⚠️ Ignoring invalid file: %s\n", path);
+  //   return false;
+  // }
+
+  const char *title = mref->title == NULL || strlen(mref->title) == 0
+                          ? basename_no_ext(mref->path)
+                          : mref->title;
+  const char *artist = mref->artist == NULL || strlen(mref->artist) == 0
+                           ? "Unknown artist"
+                           : mref->artist;
 
   GtkWidget *song = music_card(
-      "./resources/GTK.png", mref->title, mref->artist, mref->seconds,
+      "./resources/GTK.png", title, artist, mref->seconds,
       &(WidgetPositioning){TRUE, FALSE, GTK_ALIGN_CENTER, GTK_ALIGN_START});
   gtk_grid_attach(GTK_GRID(state->songsGrid), song, 0, state->musicRowCount, 1,
                   1);
